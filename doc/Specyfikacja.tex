@@ -56,4 +56,13 @@ Niedoskonałosci:
   \item Pętle: Pojawiające się wtedy kiedy hash jest redukowany do hasła, które było wcześniej hashowane w łańcuchu. To hasło jest znowu hashowane, następnie ponowna redukcja do tego samego hasła i tak w kółko.
 \end{itemize}
 
+\subsection{Zaproponowane rozwiązanie}
+Tablice tęczowe będą generowane równolegle. System zostanie zrealizowany przy pomocy technologii Interfejsu Przekazywania Wiadomości MPI, z użyciem implementacji MPICH2.
+
+Tworzenie tablic będzie w oparciu o jeden proces Zarządcę oraz dowolna ilość procesów wykonawczych. 
+
+Tablice będą generowane dla określonej dziedziny, czyli zakresu haseł (słownika) które ma pokryć tablica. Proces zarządcy będzie dokonywał dekompozycji domenowej, tj. podzieli dziedzinę haseł równomiernie na procesy wykonawcze. Procesy wykonawcze będą tworzyć łańcuchy skrótów i odsyłać je do zarządcy.
+
+Odpytywanie tablicy (dopasowanie tekstu jawnego do podanego skrótu) będzie robione za pomocą oddzielnej aplikacji, która będzie przeszukiwać wygenerowane tablice.
+
 \end{document}
