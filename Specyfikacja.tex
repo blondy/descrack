@@ -1,0 +1,59 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage[polish]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{hyperref}
+\usepackage[top=2cm, bottom=2cm, left=2cm, right=2cm]{geometry}
+
+\title{ \sc{Programowanie Równoległe i Rozproszone} \\
+\emph{Równoległe wyznaczanie tęczowych tablic w zagadnieniach kryptografii dla haseł zaszyfrowanych algorytmem DES} }
+
+\author{Sławomir Blatkiewicz
+\and Piotr Piechal
+\and Michał Zochniak}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+
+\section{Specyfikacja funkcjonalna}
+
+\subsection{Opis problemu}
+Rainbow tables używane są do przyspieszenia łamania haseł zapisanych w systemach informatycznych. Ponieważ autentykacja wiąże się z koniecznością przechowywania haseł w systemie, nie można ich przechowywać w sposób jawny, bo każdy kto by uzyskał dostęp do systemu miałby dostęp do haseł wszystkich użytkowników. Dlatego hasła przechowywane są w postaci wartości funkcji skrótu.
+
+Aby złamać to zabezpieczenie stosuje się ataki typu brute force. Polegają one na sprawdzeniu wszystkich możliwych kombinacji w poszukwianiu tej właściwej. Jednak przy długich hasłach złożoność tego procesu staje się ogromna. Właśnie z pomocą przychodzą Rainbow tables.
+
+Pozwalają one zmniejszyć w znaczący sposób czas potrzebny na odszukanie prawidłowego hasła algorytmem brute force jendak za cenę dużej złożoności pamięciowej. A to za sprawą konieczności przechowywania dużej ilości par: hasło, hash.
+
+Lamanie hasel jest uzywane miedzy innymi do testow penetracyjnych systemu. Majac skróty haseł systemu mozemy sprobowac znalesc słabe hasla uzytkownikow ktore sa potencjalnym niebezpieczenstwem systemu.
+
+Zajmować będziemy się funkcją mieszającą zaimplementowaną przy uzyciu DESa w funkcji bibliotecznej crypt(3).
+Funkcja ta jest uzywana np. przy zarzadzaniu haslami w systemach *nixowych. Mimo, ze wiekszosc administratorow konfiguruje swoje systemy aby uzywaly bezpieczniejszych funkcji skrotu, wiele systemow wciaz uzywa crypt(3) z DESem.
+
+
+\subsection{Rainbow tables}
+Tęczowe tablice wykorzystują funkcje hashujące oraz funkcje redukujące. Funkcje hashujące generują skróty(hashes) na podstawie haseł(plaintexts). Hashe są funkcją jednokierunkową, czyli na podstawie hasha bardzo trudno jest wygenerować z powrotem plaintext. Reduction function z kolei nie są wcale funkcjami odwracalnymi dla wygenerowanych hashów. Mapują hashe na tekst jawny, czyli na podstawie hasha funkcja redukująca tworzy plaintext już inny od wejściowego plaintexta, ale w dalszym ciągu istniejący w przestrzeni haseł. 
+
+Łańcuchy tworzące tęczową tablicę są łańcuchami hashy oraz funkcji redukujących rozpoczynających się od danego tekstu jawnego i kończących się pewnym skrótem. Łańcuch w tęczowej tablicy rozpoczyna się pewnym tekstem jawnym(hasłem), wylicza z niego hash, redukuje hash do innego tekstu jawnego, wylicza skrót na tym nowym haśle, redukuje ten skrót itd.
+
+Ogromnie zmniejsza to narzut pamieciowy wygenerowanej tablicy, poniewaz tablica zawiera jedynie początkowy tekst jawny oraz hash dla którego zdecydowano zakończyć generowanie łańcucha(będący końcem łańcucha).
+
+Mając dany hash dla nieznanego hasła, próbujemy znaleść ten skrót w w którymś z wygenerownych łańcuchów tablicy.
+
+Algorytm wyszukiwania hasha:
+\begin{itemize}
+  \item Szukanie skrótu w liście skrótów kończących łańcuch, jeżeli istnieje to zakończ
+  \item Jeżeli nie istnieje, to zredukuj dany skrót do innego hasła, a następnie oblicz skrót z nowego hasła
+  \item Idź do kroku pierwszego
+  \item Jeżeli skrót pasuje do jednego z finalnych skrótów, łańcuch dla którego skrót pasuje z finalnym skrótemm zawiera oryginalny skrót
+\end{itemize}
+
+Niedoskonałosci:
+\begin{itemize}
+  \item Kolizje: Wtedy gdy dany hash jest generowany przez różne hasła. Powoduje to problem, ponieważ tworzone są łańcuchy zaczynające się od różnych haseł, a zbiegające się do tego samego hasha.
+  \item Pętle: Pojawiające się wtedy kiedy hash jest redukowany do hasła, które było wcześniej hashowane w łańcuchu. To hasło jest znowu hashowane, następnie ponowna redukcja do tego samego hasła i tak w kółko.
+\end{itemize}
+
+\end{document}
