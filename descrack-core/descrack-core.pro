@@ -10,9 +10,13 @@ TARGET = descrack-core
 TEMPLATE = lib
 CONFIG += staticlib
 
-SOURCES += descrackcore.cpp
+SOURCES += descrackcore.cpp \
+    rainbowtable.cpp \
+    chaingenerator.cpp
 
-HEADERS += descrackcore.h
+HEADERS += descrackcore.h \
+    rainbowtable.h \
+    chaingenerator.h
 unix:!symbian {
     maemo5 {
         target.path = /opt/usr/lib
