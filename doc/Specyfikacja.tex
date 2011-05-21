@@ -66,4 +66,35 @@ Tablice będą generowane dla określonej dziedziny, czyli zakresu haseł (słow
 
 Odpytywanie tablicy (dopasowanie tekstu jawnego do podanego skrótu) będzie robione za pomocą oddzielnej aplikacji, która będzie przeszukiwać wygenerowane tablice.
 
+\section{Specyfikacja implementacyjna}
+
+\subsection{Działanie funkcji crypt(3)}
+
+\textbf{crypt(3)} zwraca skrót dla dowolnego ciągu znaków, stosując algorytm DES. Funkcja przyjmuje dwa parametry:
+\begin{itemize}
+	\item \textbf{klucz} - wejściowy ciąg znaków, np. hasło użytkownika
+	\item \textbf{sól} - Dwu-znakowy ciąg z alfabetu \textbf{[a-zA-Z0-9./]}, służacy ,,zaburzenia'' algorytmu.
+\end{itemize}
+
+Funkcja bierze 7 najmłodszych bitów z kazdego z 8 pierwszych znaków ciągu wejściowego, tworząc w ten sposób 56-bitowy klucz. Następnie klucz ten wykorzystywany jest do wielokrotnego zaszyfrowania stałego ciągu znaków (np samych 0x00 albo 0xFF). Wynik szyfrowania (odpowiednio dopasowany), wraz z solą, zwracany jest jako wynikowy, nieodwracalny, skrót.
+
+\subsection{Generowanie tablic}
+
+Tablice będą generowane dla wybranego alfabetu oraz wybranego ,,wstępnego'' pokrycia - czyli stosunku ilości łańcuchów do ilości haseł możliwych dla danego alfabetu. W skład pokrycia wchodzą również wartości soli. 100\% pokrycia soli zwiększy wielkość tablicy 4096-krotnie!
+
+\subsection{Organizacja pracy nad programem}
+
+Program będzie budowany z trzech modułów. Funkcjonalność została podzielona na 3 części:
+\begin{itemize}
+	\item \textbf{descrack-gen} - Program służący do rozproszonego generowania tablic tęczowych.
+	\item \textbf{descrack-table} - Program służący do przeszukiwania wygenerowanych tablic.
+	\item \textbf{descrack-core} - Moduł kompilowany/linkowany do statycznej biblioteki. Zawiera on funkcjonalności wymagane przez pozostałe moduły.
+\end{itemize}
+
+\subsection{descrack-core}
+
+\textbf{descrack-core} udostępnia dwie klasy
+
+
+
 \end{document}
