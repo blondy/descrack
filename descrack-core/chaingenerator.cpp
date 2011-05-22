@@ -5,22 +5,17 @@ ChainGenerator::ChainGenerator()
 
 }
 
-char* ChainGenerator::getPlain(int index)
-{
-    return NULL;
-}
-
 char* ChainGenerator::getHash(const char* text)
 {
     return NULL;
 }
 
-int ChainGenerator::reduce(const char* hash, int function)
+char* ChainGenerator::reduce(const char* hash, int function)
 {
-    return 0;
+    return NULL;
 }
 
-void ChainGenerator::generateChain(int index, char** ret_first, char** ret_second)
+char* ChainGenerator::generateChain(const char* plain)
 {
 
 }
