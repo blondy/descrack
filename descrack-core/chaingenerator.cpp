@@ -1,5 +1,7 @@
 #include "chaingenerator.h"
 
+#include <stdlib.h>
+
 ChainGenerator::ChainGenerator()
 {
 

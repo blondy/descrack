@@ -1,6 +1,6 @@
 #include "rainbowtable.h"
 
-RainbowTable::RainbowTable(const char* filename, int mode)
+RainbowTable::RainbowTable(const char* filename, RainbowTableMode_t mode)
 {
 
 }

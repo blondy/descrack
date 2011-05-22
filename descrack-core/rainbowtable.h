@@ -3,10 +3,16 @@
 
 #include <fstream>
 
+enum RainbowTableMode_t
+{
+    TABLE_WRITE,
+    TABLE_READ
+};
+
 class RainbowTable
 {
 public:
-    RainbowTable(const char* filename, int mode);
+    RainbowTable(const char* filename, RainbowTableMode_t mode);
     ~RainbowTable();
 
     void addChain(const char* first, const char* second);

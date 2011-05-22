@@ -18,4 +18,12 @@ CONFIG   -= app_bundle
 TEMPLATE = app
 
 
-SOURCES += main.cpp
+SOURCES += main.cpp \
+    master.cpp \
+    entity.cpp \
+    slave.cpp
+
+HEADERS += \
+    master.h \
+    entity.h \
+    slave.h

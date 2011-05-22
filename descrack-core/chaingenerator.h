@@ -13,7 +13,7 @@ public:
     char* reduce(const char* hash, int function);
 
     //Generates rainbow table chain.
-    char* generateChain(char* plain);
+    char* generateChain(const char* plain);
 
 private:
     char* m_alphabet;
