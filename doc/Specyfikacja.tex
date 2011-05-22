@@ -100,7 +100,7 @@ Klasa \textbf{ChainGenerator} posiada następujące, publiczne, metody:
 \begin{lstlisting}
 char* getHash(const char* text);
 char* reduce(const char* hash, int function);
-char* generateChain(char* plain);
+char* generateChain(const char* plain);
 \end{lstlisting}
 
 Metoda \emph{getHash} wywołuje funkcję crypt i zwraca skrót podanego ciągu wejściowego w parametrze \emph{text}.
@@ -119,12 +119,35 @@ bool getChain(char** first, char** second);
 void reset();
 \end{lstlisting}
 
-oraz publiczny konstruktor, do którego dostarcza się nazwę pliku oraz tryb: pisanie lub czytanie.
+Publiczny konstruktor wymaga nazwy pliku oraz tryb pracy - czytanie lub pisanie.
 
 Metoda \emph{addChain} służy do dodania łańcucha do pliku (jeśli plik jest otwarty w trybie do zapisu). Argumentami jest pierwszy oraz ostatni element łańcucha.
 
 Metoda \emph{getChain} służy do pobrania łańcucha z pliku. Poprzez argumenty zostaną zwrócone wskaźniki na pierwszy oraz ostatni ciąg łańcucha. Metoda zwraca false jeśli nie ma już łańcuchów w pliku, true jeśli zwrócono łańcuch.
 
-Metoda \emph{reset} resetuje plik (sprawia, że będzie czytany od zera). Nie ustalono efektów w przypadku użycia na pliku otwartym do pisania. \Large{UNDEFINIED BEHAVIOUR, YO}
+Metoda \emph{reset} resetuje plik (sprawia, że będzie czytany od zera). Nie ustalono efektów w przypadku użycia na pliku otwartym do pisania.
+
+\subsection{descrack-gen}
+
+Moduł \textbf{gen} składa się z 2 części: części wykonywanej przez proces zarzadce oraz części wykonywanej przez proces robotnika.
+
+Zarządca potrzebuje następujących funkcjonalności:
+\begin{itemize}
+	\item Przeczytanie argumentów - przeczytanie z \emph{argv} alfabetu, nazwy pliku wejściowego, pokrycie oraz ilości robotników.
+	\item Podział alfabetu na robotników - zarządca rozdziela alfabet na robotników
+	\item Wysyłanie parametrów do robotników - zarządca wysyła alfabet oraz pokrycie do robotników
+	\item Zbieranie danych - zarzadca czeka na komunikaty od robotników. Jeśli otrzyma łańcuchy, zapisuje je używając klasy metody \textbf{addChain} klasy \textbf{RainbowTable}. Jeśli wszyscy robotnicy poinformują o końcu pracy, zarządca zamyka plik i kończy działanie.
+\end{itemize}
+
+Robotnik potrzebuje następujących funkcjonalności:
+\begin{itemize}
+	\item Odebranie parametrów zadania - robotnik czeka na wiadomość od zarządcy z zadanym dla niego alfabetem oraz pokryciem.
+	\item Generowanie łańcuchów - używając klasy \textbf{ChainGenerator}, robotnik generuje kolejne łańcuchy.
+	\item Wysyłanie wyników, informowanie o końcu pracy - robotnik wysyła wygenerowane łańcuchy oraz informuje o końcu pracy.
+\end{itemize}
+
+\subsection{descrack-table}
+
+Przeszukuje tablice za pomocą \textbf{RainbowTable}.
 
 \end{document}
