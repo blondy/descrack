@@ -24,6 +24,6 @@ int main(int argc, char *argv[])
     }
 
     int ret = entity->run(argc, argv);
-    delete entity; //oh look how nice we are
+    delete entity;
     return ret;
 }
