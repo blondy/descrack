@@ -3,3 +3,5 @@ doc/*.aux
 doc/*.log
 doc/*.out
 doc/*.toc
+descrack-*-build-*/
+*.pro.user
