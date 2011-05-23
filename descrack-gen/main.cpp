@@ -4,8 +4,17 @@
 #include "slave.h"
 #include "master.h"
 
+#include <chaingenerator.h>
+#include <stdio.h>
+
 int main(int argc, char *argv[])
 {
+    ChainGenerator g("abcdefghijklmnopqrstuvwxyz ", 3, 5);
+    uint64_t ab = g.getIdx("zzz");
+    char* ab_ = g.getPlain(ab);
+    printf("%d = %s", (int)ab, ab_);
+
+#if 0
     MPI_Init(&argc, &argv);
 
     int size, rank;
@@ -26,4 +35,5 @@ int main(int argc, char *argv[])
     int ret = entity->run(argc, argv);
     delete entity;
     return ret;
+#endif
 }
