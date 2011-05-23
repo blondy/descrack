@@ -83,6 +83,10 @@ Funkcja bierze 7 najmłodszych bitów z kazdego z 8 pierwszych znaków ciągu we
 
 Tablice będą generowane dla wybranego alfabetu oraz wybranego ,,wstępnego'' pokrycia - czyli stosunku ilości łańcuchów do ilości haseł możliwych dla danego alfabetu. W skład pokrycia wchodzą również wartości soli. Tablica tęczowa będzie zapisana w pliku jako lista łańcuchów, gdzie łańcuch to: ciąg poczatkowy oraz ciąg kończący, czyli ciąg po ostatniej redukcji.
 
+\subsection{Reprezentacja łańcuchów jako indeksy}
+
+Łańcuch można reprezentować jako jego numer w słowniku. Np. mając alfabet \textbf{[a-z]} z minimalną długością słów 1 a maksymalną 3, łańcuch o numerze 0 to ,,a'' a łańcuch o numerze 26 to ,,aa''.
+
 \subsection{Organizacja pracy nad programem}
 
 Program będzie budowany z trzech modułów. Funkcjonalność została podzielona na 3 części:
@@ -112,20 +116,21 @@ Metoda \emph{generateChain} służy do wygenerowania łańcucha rozpoczynając o
 Klasa \textbf{RainbowTable} reprezentuje plik z tablicą w programie. Zawiera ona publiczne metody:
 
 \begin{lstlisting}
-RainbowTable(const char* filename, RainbowTableMode_t mode);
+RainbowTable(const char* filename);
 
-void addChain(const char* first, const char* second);
-bool getChain(char** first, char** second);
-void reset();
+void addChain(int num, const char* first, const char* second);
+bool getChain(int num, char** first, char** second);
 \end{lstlisting}
 
-Publiczny konstruktor wymaga nazwy pliku oraz tryb pracy - czytanie lub pisanie.
+Publiczny konstruktor wymaga nazwy pliku.
 
-Metoda \emph{addChain} służy do dodania łańcucha do pliku (jeśli plik jest otwarty w trybie do zapisu). Argumentami jest pierwszy oraz ostatni element łańcucha.
+Metoda \emph{addChain} służy do dodania łańcucha do pliku. Argumentem jest numer łańcucha, pierwszy oraz ostatni element łańcucha.
 
-Metoda \emph{getChain} służy do pobrania łańcucha z pliku. Poprzez argumenty zostaną zwrócone wskaźniki na pierwszy oraz ostatni ciąg łańcucha. Metoda zwraca false jeśli nie ma już łańcuchów w pliku, true jeśli zwrócono łańcuch.
+Metoda \emph{getChain} służy do pobrania łańcucha z pliku. Poprzez argumenty zostaną zwrócone wskaźniki na pierwszy oraz ostatni ciąg łańcucha.
 
-Metoda \emph{reset} resetuje plik (sprawia, że będzie czytany od zera). Nie ustalono efektów w przypadku użycia na pliku otwartym do pisania.
+\subsubsection{Format pliku z tablicą}
+
+Tablice są trzymane w pliku binarnym. Na początku pliku jest zapisana ilość łańcuchów oraz maksymalna długość ciągu. Następnie kolejno zapisane są łancuchy, w których każdy ciąg dopełniany jest zerami do maksymalnej długości. Sprawi to, że za pomocą prostej operacji arytmetycznej będzie można znaleść pozycje dowolnego łańcucha. Ułatwi to sortowanie oraz wyszukiwanie łańcuchów.
 
 \subsection{descrack-gen}
 
@@ -146,8 +151,10 @@ Robotnik potrzebuje następujących funkcjonalności:
 	\item Wysyłanie wyników, informowanie o końcu pracy - robotnik wysyła wygenerowane łańcuchy oraz informuje o końcu pracy.
 \end{itemize}
 
+Zebrane dane są następnie sortowane.
+
 \subsection{descrack-table}
 
-Przeszukuje tablice za pomocą \textbf{RainbowTable}.
+Przeszukuje posortowane tablice za pomocą klasy \textbf{RainbowTable}. Przy przeszukiwaniu jest stosowany algorytm bisekcji.
 
 \end{document}
