@@ -6,6 +6,7 @@
 \usepackage{hyperref}
 \usepackage[top=2cm, bottom=2cm, left=2cm, right=2cm]{geometry}
 \usepackage{listings}
+\usepackage{amsmath}
 
 \title{ \sc{Programowanie Równoległe i Rozproszone} \\
 \emph{Równoległe wyznaczanie tęczowych tablic w zagadnieniach kryptografii dla haseł zaszyfrowanych algorytmem DES} }
@@ -36,20 +37,35 @@ Funkcja ta jest używana np. przy zarządzaniu hasłami w systemach *nixowych. M
 
 
 \subsection{Rainbow tables}
-Tęczowe tablice wykorzystują funkcje hashujące oraz funkcje redukujące. Funkcje hashujące generują skróty(hashes) na podstawie haseł(plaintexts). Hashe są funkcją jednokierunkową, czyli na podstawie hasha bardzo trudno jest wygenerować z powrotem plaintext. Reduction function z kolei nie są wcale funkcjami odwracalnymi dla wygenerowanych hashów. Mapują hashe na tekst jawny, czyli na podstawie hasha funkcja redukująca tworzy plaintext już inny od wejściowego plaintexta, ale w dalszym ciągu istniejący w przestrzeni haseł. 
+Tablice tęczowe zawierają tzw. łańcuchy skrótów. Głównym założeniem jest zmniejszenie wielkości bazy kosztem czasu przeszukiwania. Używana jest funkcja redukcji, która zwraca ciąg dla danego skrótu. Nie należy jednak tego mylić z odwróceniem skrótu:
 
+\[	
+	hash(A) = B \quad
+	red(B) \neq A
+\]
+	lub
+\[
+	red(A) = B \quad
+	hash(B) \neq A
+\]
+	
 Łańcuchy tworzące tęczową tablicę są łańcuchami hashy oraz funkcji redukujących rozpoczynających się od danego tekstu jawnego i kończących się pewnym skrótem. Łańcuch w tęczowej tablicy rozpoczyna się pewnym tekstem jawnym(hasłem), wylicza z niego hash, redukuje hash do innego tekstu jawnego, wylicza skrót na tym nowym haśle, redukuje ten skrót itd.
 
-Ogromnie zmniejsza to narzut pamięciowy wygenerowanej tablicy, ponieważ tablica zawiera jedynie początkowy tekst jawny oraz hash dla którego zdecydowano zakończyć generowanie łańcucha(będący końcem łańcucha).
+Przykład łańcucha z dwoma redukcjami:
+\[
+	plain1 \xrightarrow{HASH} hash1 \xrightarrow{reduction 1} plain2 \xrightarrow{HASH} hash2 \xrightarrow{reduction 2} plain3
+\]
+
+W tablicy tęczowej zapisujemy pierwszy oraz ostatni plain każdego łancucha.
 
 Mając dany hash dla nieznanego hasła, próbujemy znaleść ten skrót w w którymś z wygenerowanych łańcuchów tablicy.
 
 Algorytm wyszukiwania hasha:
 \begin{itemize}
-  \item Szukanie skrótu w liście skrótów kończących łańcuch, jeżeli istnieje to zakończ
-  \item Jeżeli nie istnieje, to zredukuj dany skrót do innego hasła, a następnie oblicz skrót z nowego hasła
-  \item Idź do kroku pierwszego
-  \item Jeżeli skrót pasuje do jednego z finalnych skrótów, łańcuch dla którego skrót pasuje z finalnym skrótem zawiera oryginalny skrót
+  \item Redukujemy szukany skrót
+  \item Szukamy wyniku redukcji w tablicy tęczowej (w ostatniej kolumnie tj. ostatnich plainów).
+  \item Jeśli znajdziemy, możemy rozwikłać łańcuch i znaleść ciąg który hashuje się do szukanego hasha.
+  \item Jeśli nie, dokonujemy kolejnej redukcji (hashujemy wynik poprzedniej redukcji i redukujemy znowu), przeszukując od nowa.
 \end{itemize}
 
 Niedoskonałości:
@@ -118,11 +134,15 @@ Klasa \textbf{RainbowTable} reprezentuje plik z tablicą w programie. Zawiera on
 \begin{lstlisting}
 RainbowTable(const char* filename);
 
+int getChainCount();
+
 void addChain(int num, const char* first, const char* second);
 bool getChain(int num, char** first, char** second);
 \end{lstlisting}
 
 Publiczny konstruktor wymaga nazwy pliku.
+
+Metoda \emph{getChainCount} zwraca ilość łańcuchów w pliku.
 
 Metoda \emph{addChain} służy do dodania łańcucha do pliku. Argumentem jest numer łańcucha, pierwszy oraz ostatni element łańcucha.
 
@@ -153,8 +173,12 @@ Robotnik potrzebuje następujących funkcjonalności:
 
 Zebrane dane są następnie sortowane.
 
+\subsubsection{Algorytm sortowania dużych plików nie będących w pamięci}
+
+... do przemyślenia.
+
 \subsection{descrack-table}
 
-Przeszukuje posortowane tablice za pomocą klasy \textbf{RainbowTable}. Przy przeszukiwaniu jest stosowany algorytm bisekcji.
+Przeszukuje posortowane tablice za pomocą klasy \textbf{RainbowTable}. Algorytm szukania hasha wykorzystuje klase \textbf{ChainGenerator} do redukcji i hashowania.
 
 \end{document}
