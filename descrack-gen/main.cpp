@@ -7,12 +7,17 @@
 #include <chaingenerator.h>
 #include <stdio.h>
 
+#include <dictiterator.h>
+
 int main(int argc, char *argv[])
 {
-    ChainGenerator g("abcdefghijklmnopqrstuvwxyz ", 3, 5);
-    uint64_t ab = g.getIdx("zzz");
-    char* ab_ = g.getPlain(ab);
-    printf("%d = %s", (int)ab, ab_);
+    DictIterator dictit("abc", 3, 3, 5);
+    for(int i = 0; i < 50; i++)
+    {
+        dictit.advance(i);
+        printf("%s; ", dictit.getPlain());
+        dictit.reset();
+    }
 
 #if 0
     MPI_Init(&argc, &argv);

@@ -12,11 +12,13 @@ CONFIG += staticlib
 
 SOURCES += descrackcore.cpp \
     rainbowtable.cpp \
-    chaingenerator.cpp
+    chaingenerator.cpp \
+    dictiterator.cpp
 
 HEADERS += descrackcore.h \
     rainbowtable.h \
-    chaingenerator.h
+    chaingenerator.h \
+    dictiterator.h
 unix:!symbian {
     maemo5 {
         target.path = /opt/usr/lib

@@ -56,7 +56,10 @@ char* ChainGenerator::getHash(const char* text)
 
 char* ChainGenerator::reduce(const char* hash, int function)
 {
-    return NULL;
+    for(int i = 2; i < 10; i++)
+    {
+
+    }
 }
 
 char* ChainGenerator::generateChain(const char* plain)
