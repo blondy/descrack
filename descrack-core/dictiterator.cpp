@@ -13,19 +13,32 @@ DictIterator::DictIterator(const char* alphabet, int a_len, int min_len, int max
 
     m_state = new char[m_max_len];
 
-    m_state_start = 0;
-
     reset();
 }
 
 void DictIterator::initFromPlain(const char* plain)
 {
+    if(strlen(plain) < m_min_len)
+        m_min_len = strlen(plain);
+    else if(strlen(plain) > m_max_len)
+        m_max_len = strlen(plain); //or should we fail in these cases?
 
+    int i;
+    for(i = 0; i < strlen(plain); i++)
+    {
+        for(int ch = 0; ch < m_a_len; ch++)
+        {
+            if(m_alphabet[ch] == plain[i])
+                m_state[i] = ch + 1;
+        }
+    }
+    for(i; i < m_max_len; i++)
+        m_state[i] = 0x00;
 }
 
 void DictIterator::initFromState(const char* state)
 {
-
+    memcpy(m_state, state, m_max_len);
 }
 
 char* DictIterator::advance(int count, int* status /*= NULL*/)

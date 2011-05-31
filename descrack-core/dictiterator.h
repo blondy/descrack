@@ -25,8 +25,6 @@ private:
     int m_max_len;
 
     char* m_state;
-
-    int m_state_start;
 };
 
 #endif // DICTITERATOR_H
