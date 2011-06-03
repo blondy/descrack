@@ -8,6 +8,8 @@
 
 #include <crypt.h>
 
+#include "dictiterator.h"
+
 char* ChainGenerator::salt_alphabet = "abcdefghijklmnopqrstuwxyzABCDEFGHIJKLMNOPQRSTUWXYZ./";
 int ChainGenerator::salt_a_len = strlen(ChainGenerator::salt_alphabet);
 
@@ -96,4 +98,9 @@ void ChainGenerator::generateCaches()
     memset(m_char_map, 0x00, 255);
     for(int i = 0; i < m_alphabet_length; i++)
         m_char_map[(int)m_alphabet[i]] = i;
+}
+
+DictIterator* ChainGenerator::createDictIterator()
+{
+    return new DictIterator(m_alphabet, m_alphabet_length, m_min_len, m_max_len);
 }

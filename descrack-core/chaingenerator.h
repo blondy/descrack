@@ -3,6 +3,8 @@
 
 #include <stdint.h>
 
+class DictIterator;
+
 class ChainGenerator
 {
 public:
@@ -17,6 +19,8 @@ public:
 
     //Generates rainbow table chain.
     void generateChain(const char* plain, char* result);
+
+    DictIterator* createDictIterator();
 
 protected:
     int getLetterNum(unsigned char c);
