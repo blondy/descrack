@@ -19,7 +19,7 @@ public:
     void generateChain(const char* plain, char* result);
 
 protected:
-    int getLetterNum(const char c);
+    int getLetterNum(unsigned char c);
     void generateCaches();
 
     char* m_alphabet;

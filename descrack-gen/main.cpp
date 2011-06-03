@@ -25,6 +25,10 @@ int main(int argc, char *argv[])
         dictit.reset();
     }
 
+    char* result = new char[10];
+    ChainGenerator generator("ABCDEFGHIJKLMNOPQRSTUWXYZ", 3, 6, 3);
+    generator.generateChain("ABCDEF", result);
+
 
 #if 0
     MPI_Init(&argc, &argv);

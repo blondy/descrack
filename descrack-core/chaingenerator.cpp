@@ -40,6 +40,22 @@ void ChainGenerator::reduce(const char* hash, int function, char* res_salt, char
 {
     res_salt[0] = salt_alphabet[(hash[0] ^ 0x13 ^ (unsigned char)function) % salt_a_len];
     res_salt[1] = salt_alphabet[(hash[1] ^ 0x37 ^ (unsigned char)function) % salt_a_len];
+
+    unsigned int len_diff = m_max_len - m_min_len;
+
+    unsigned int res_len;
+    if(len_diff == 0)
+        res_len = m_max_len;
+    else
+        res_len = (unsigned int)hash[12] % (len_diff + 1);
+
+    int i;
+    for(i = 0; i < m_min_len + res_len; i++)
+    {
+        res_text[i] = m_alphabet[(unsigned int)(hash[2+i] ^ (unsigned char)(i * 0x11) ^ (unsigned char)function) % m_alphabet_length];
+    }
+
+    res_text[i] = 0x00;
 }
 
 void ChainGenerator::generateChain(const char* plain, char* result)
@@ -53,16 +69,25 @@ void ChainGenerator::generateChain(const char* plain, char* result)
     memcpy(text, plain+2, strlen(plain+2));
     text[strlen(plain+2)] = 0x00;
 
+    printf("%s -h->", plain);
+
     for(int i = 0; i < m_chain_length; i++)
     {
         char* hash = crypt(text, salt);
         reduce(hash, i, salt, text);
+
+        printf(" %s -r-> %c%c%s -h-> ", hash, salt[0], salt[1], text);
     }
+
+    printf("\n");
+
+    memcpy(result, salt, 2);
+    memcpy(result+2, text, 8);
 }
 
-int ChainGenerator::getLetterNum(const char c)
+int ChainGenerator::getLetterNum(unsigned char c)
 {
-    return m_char_map[c];
+    return m_char_map[(int)c];
 }
 
 void ChainGenerator::generateCaches()
@@ -70,5 +95,5 @@ void ChainGenerator::generateCaches()
     //Charmap
     memset(m_char_map, 0x00, 255);
     for(int i = 0; i < m_alphabet_length; i++)
-        m_char_map[m_alphabet[i]] = i;
+        m_char_map[(int)m_alphabet[i]] = i;
 }
