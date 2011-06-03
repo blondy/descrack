@@ -10,6 +10,8 @@ TARGET = descrack-core
 TEMPLATE = lib
 CONFIG += staticlib
 
+LIBS += -lcrypt
+
 SOURCES += descrackcore.cpp \
     rainbowtable.cpp \
     chaingenerator.cpp \

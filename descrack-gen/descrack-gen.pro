@@ -8,6 +8,7 @@ QT       -= core gui
 
 LIBS += /usr/lib/libcr.so /usr/lib/libmpl.so /usr/lib/libmpi.so
 LIBS += ../descrack-core-build-desktop/libdescrack-core.a
+LIBS += -lcrypt
 
 INCLUDEPATH += ../descrack-core/
 

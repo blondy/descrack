@@ -6,7 +6,12 @@
 #include <string.h>
 #include <stdio.h>
 
-ChainGenerator::ChainGenerator(const char* alphabet, int min_len, int max_len)
+#include <crypt.h>
+
+char* ChainGenerator::salt_alphabet = "abcdefghijklmnopqrstuwxyzABCDEFGHIJKLMNOPQRSTUWXYZ./";
+int ChainGenerator::salt_a_len = strlen(ChainGenerator::salt_alphabet);
+
+ChainGenerator::ChainGenerator(const char* alphabet, int min_len, int max_len, int chain_length)
 {
     m_alphabet_length = strlen(alphabet);
     m_alphabet = new char[m_alphabet_length];
@@ -15,56 +20,44 @@ ChainGenerator::ChainGenerator(const char* alphabet, int min_len, int max_len)
     m_min_len = min_len;
     m_max_len = max_len;
 
+    m_chain_length = chain_length;
+
     generateCaches();
 }
 
 ChainGenerator::~ChainGenerator()
 {
-    delete m_pow_map;
+
 }
 
-char* ChainGenerator::getPlain(uint64_t idx)
-{
-    char* plain = new char[m_max_len+1];
-    for(int i = m_max_len; i >= 0; i--)
-    {
-        int num = idx / m_pow_map[i];
-        idx = idx % m_pow_map[i];
-        if(num != 0)
-            plain[i] = m_alphabet[num - 1];
-        else
-            plain[i] = 0x00;
-    }
-    return plain;
-}
-
-uint64_t ChainGenerator::getIdx(const char* plain)
-{
-    uint64_t ret = 0;
-    for(int i = 0; i < strlen(plain); i++)
-    {
-        ret += m_pow_map[i] * (getLetterNum(plain[i]) + 1);
-    }
-
-    return ret;
-}
 
 char* ChainGenerator::getHash(const char* text)
 {
     return NULL;
 }
 
-char* ChainGenerator::reduce(const char* hash, int function)
+void ChainGenerator::reduce(const char* hash, int function, char* res_salt, char* res_text)
 {
-    for(int i = 2; i < 10; i++)
-    {
-
-    }
+    res_salt[0] = salt_alphabet[(hash[0] ^ 0x13 ^ (unsigned char)function) % salt_a_len];
+    res_salt[1] = salt_alphabet[(hash[1] ^ 0x37 ^ (unsigned char)function) % salt_a_len];
 }
 
-char* ChainGenerator::generateChain(const char* plain)
+void ChainGenerator::generateChain(const char* plain, char* result)
 {
+    char salt[3];
+    char text[10]; //1 byte extra so we don't have to bound check strlen plain
 
+    memcpy(salt, plain, 2);
+    salt[2] = 0x00;
+
+    memcpy(text, plain+2, strlen(plain+2));
+    text[strlen(plain+2)] = 0x00;
+
+    for(int i = 0; i < m_chain_length; i++)
+    {
+        char* hash = crypt(text, salt);
+        reduce(hash, i, salt, text);
+    }
 }
 
 int ChainGenerator::getLetterNum(const char c)
@@ -78,16 +71,4 @@ void ChainGenerator::generateCaches()
     memset(m_char_map, 0x00, 255);
     for(int i = 0; i < m_alphabet_length; i++)
         m_char_map[m_alphabet[i]] = i;
-
-    //powmap
-    m_pow_map = new uint64_t[m_max_len+1];
-    m_pow_map[0] = 1;
-    for(int i = 1; i <= m_max_len; i++)
-    {
-        m_pow_map[i] = 1;
-        for(int j = 0; j < i; j++)
-        {
-            m_pow_map[i] *= m_alphabet_length+1;
-        }
-    }
 }

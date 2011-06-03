@@ -9,15 +9,22 @@
 
 #include <dictiterator.h>
 
+#include <string.h>
+#include <crypt.h>
+
 int main(int argc, char *argv[])
 {
+    char* res = crypt("aaaaaaab", "bb");
+    printf("crypt: %s %d\n", res, strlen(res));
+
     DictIterator dictit("abc", 3, 3, 5);
     for(int i = 0; i < 50; i++)
     {
         dictit.advance(i);
-        printf("%s; ", dictit.getPlain());
+    //    printf("%s; ", dictit.getPlain());
         dictit.reset();
     }
+
 
 #if 0
     MPI_Init(&argc, &argv);

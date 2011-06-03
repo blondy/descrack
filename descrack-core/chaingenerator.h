@@ -6,20 +6,17 @@
 class ChainGenerator
 {
 public:
-    ChainGenerator(const char* alphabet, int min_len, int max_len);
+    ChainGenerator(const char* alphabet, int min_len, int max_len, int chain_length);
     ~ChainGenerator();
-
-    char* getPlain(uint64_t idx);
-    uint64_t getIdx(const char* plain);
 
     //Returns crypt(3) hash from text.
     char* getHash(const char* text);
 
-    //Reduction function, reduces hash to index.
-    char* reduce(const char* hash, int function);
+    //Reduction function, reduces hash to new plaintext and salt
+    void reduce(const char* hash, int function, char* res_salt, char* res_text);
 
     //Generates rainbow table chain.
-    char* generateChain(const char* plain);
+    void generateChain(const char* plain, char* result);
 
 protected:
     int getLetterNum(const char c);
@@ -30,8 +27,12 @@ protected:
 
     int m_min_len, m_max_len;
 
+    int m_chain_length;
+
+    static char* salt_alphabet;
+    static int salt_a_len;
+
     //Caches
-    uint64_t* m_pow_map;
     char m_char_map[256];
 
 };
