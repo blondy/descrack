@@ -14,6 +14,7 @@
 
 int main(int argc, char *argv[])
 {
+#if 0
     char* res = crypt("aaaaaaab", "bb");
     printf("crypt: %s %d\n", res, strlen(res));
 
@@ -30,7 +31,7 @@ int main(int argc, char *argv[])
     generator.generateChain("ABCDEF", result);
 
 
-#if 0
+#endif
     MPI_Init(&argc, &argv);
 
     int size, rank;
@@ -51,5 +52,5 @@ int main(int argc, char *argv[])
     int ret = entity->run(argc, argv);
     delete entity;
     return ret;
-#endif
+
 }

@@ -1,6 +1,8 @@
 #include "slave.h"
 
 #include <mpi/mpi.h>
+#include <stdio.h>
+#include <string.h>
 
 Slave::Slave(int size, int rank)
     : Entity(size, rank)
@@ -25,7 +27,7 @@ void Slave::recvParams()
     m_max_len = params[0];
     m_chain_length = params[0];
 
-
+    printf("sup im %d and ill crunch: %d %d %d %d\n", m_rank, m_alphabet_length, m_min_len, m_max_len, m_chain_length);
 }
 
 int Slave::run(int argc, char **argv)
