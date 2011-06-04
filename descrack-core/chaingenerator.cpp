@@ -2,9 +2,9 @@
 
 #include <stdlib.h>
 #include <math.h>
-
 #include <string.h>
 #include <stdio.h>
+#include <algorithm> //std::min/max
 
 #include <crypt.h>
 
@@ -19,8 +19,8 @@ ChainGenerator::ChainGenerator(const char* alphabet, int min_len, int max_len, i
     m_alphabet = new char[m_alphabet_length];
     strcpy(m_alphabet, alphabet);
 
-    m_min_len = min_len;
-    m_max_len = max_len;
+    m_min_len = std::max(min_len, 2);
+    m_max_len = std::max(m_min_len, max_len);
 
     m_chain_length = chain_length;
 

@@ -2,6 +2,8 @@
 
 #include <string.h>
 
+#include "chaingenerator.h"
+
 DictIterator::DictIterator(const char* alphabet, int a_len, int min_len, int max_len)
 {
     m_a_len = a_len;
@@ -18,6 +20,9 @@ DictIterator::DictIterator(const char* alphabet, int a_len, int min_len, int max
 
 void DictIterator::initFromPlain(const char* plain)
 {
+    //Warning: this is broken because it doesn't support salt
+    //fix if you want to use this :P
+
     if(strlen(plain) < m_min_len)
         m_min_len = strlen(plain);
     else if(strlen(plain) > m_max_len)
@@ -45,6 +50,9 @@ char* DictIterator::advance(int count, int* status /*= NULL*/)
 {
     int rest;
     int state_start = 0;
+
+    int a_len_for_letter;
+
     while(count > 0)
     {
         rest = count % m_a_len;
@@ -52,11 +60,21 @@ char* DictIterator::advance(int count, int* status /*= NULL*/)
 
         m_state[state_start] += rest;
 
-        if(m_state[state_start] >= m_a_len)
+        if(state_start < 2)
+            a_len_for_letter = ChainGenerator::salt_a_len;
+        else
+            a_len_for_letter = m_a_len;
+
+        if(m_state[state_start] >= a_len_for_letter)
         {
             for(int i = state_start; i < m_max_len; i++)
             {
-                if(m_state[i] - 1 < m_a_len)
+                if(i < 2)
+                    a_len_for_letter = ChainGenerator::salt_a_len;
+                else
+                    a_len_for_letter = m_a_len;
+
+                if(m_state[i] - 1 < a_len_for_letter)
                 {
                     break;
                 }
@@ -64,12 +82,12 @@ char* DictIterator::advance(int count, int* status /*= NULL*/)
                 {
                     if(status)
                         *status = 1;
-                    m_state[i] = m_a_len;
+                    m_state[i] = a_len_for_letter;
                     count = 0;
                     break;
                 }
 
-                m_state[i+1] += m_state[i] / m_a_len;
+                m_state[i+1] += m_state[i] / a_len_for_letter;
                 m_state[i] = 1;
             }
         }
@@ -94,7 +112,11 @@ void DictIterator::getPlain(char* plain)
             plain[i] = 0x00;
             break;
         }
-        plain[i] = m_alphabet[m_state[i] - 1];
+
+        if(i < 2)
+            plain[i] = ChainGenerator::salt_alphabet[m_state[i] - 1];
+        else
+            plain[i] = m_alphabet[m_state[i] - 1];
     }
     if(i < 10)
         plain[i] = 0x00;

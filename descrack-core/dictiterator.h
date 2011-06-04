@@ -6,6 +6,7 @@
 class DictIterator
 {
 public:
+    //This constructor should be private btw.
     DictIterator(const char* alphabet, int a_len, int min_len, int max_len);
 
     void initFromPlain(const char* plain);

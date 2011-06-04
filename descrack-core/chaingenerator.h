@@ -22,6 +22,9 @@ public:
 
     DictIterator* createDictIterator();
 
+    static char* salt_alphabet;
+    static int salt_a_len;
+
 protected:
     int getLetterNum(unsigned char c);
     void generateCaches();
@@ -32,9 +35,6 @@ protected:
     int m_min_len, m_max_len;
 
     int m_chain_length;
-
-    static char* salt_alphabet;
-    static int salt_a_len;
 
     //Caches
     char m_char_map[256];
