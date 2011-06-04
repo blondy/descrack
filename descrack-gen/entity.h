@@ -3,6 +3,8 @@
 
 // Sorry, can't think of a better name.
 
+#define __VERBOSE__
+
 class Entity
 {
 public:

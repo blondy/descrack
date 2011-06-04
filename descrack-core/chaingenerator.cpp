@@ -71,17 +71,11 @@ void ChainGenerator::generateChain(const char* plain, char* result)
     memcpy(text, plain+2, strlen(plain+2));
     text[strlen(plain+2)] = 0x00;
 
-    printf("%s -h->", plain);
-
     for(int i = 0; i < m_chain_length; i++)
     {
         char* hash = crypt(text, salt);
         reduce(hash, i, salt, text);
-
-        printf(" %s -r-> %c%c%s -h-> ", hash, salt[0], salt[1], text);
     }
-
-    printf("\n");
 
     memcpy(result, salt, 2);
     memcpy(result+2, text, 8);

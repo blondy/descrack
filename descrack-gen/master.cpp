@@ -40,11 +40,22 @@ void Master::broadcastParams()
 
 void Master::sendWork(int proc, int* status)
 {
+#ifdef __VERBOSE__
+    static char debugPlain[10];
+    iterator->getPlain(debugPlain);
+    printf("[master] sending work to %d, chains from %s\n", proc, debugPlain);
+#endif
+
     static char workOp = 0x00;
     MPI_Send(&workOp, 1, MPI_CHAR, proc, 1338, MPI_COMM_WORLD);
     MPI_Send(iterator->getState(), m_max_len, MPI_CHAR, proc, 1338, MPI_COMM_WORLD);
 
     iterator->advance(100, status);
+
+#ifdef __VERBOSE__
+    if(*status != 0)
+        printf("[master] exceeded dict\n");
+#endif
 }
 
 void Master::recvChains(int proc, bool not_full_pkg)
@@ -55,6 +66,10 @@ void Master::recvChains(int proc, bool not_full_pkg)
     {
         MPI_Recv(&chain_count, 1, MPI_INTEGER, proc, 1338, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
     }
+
+#ifdef __VERBOSE__
+    printf("[master] receiving %d chains from %d\n", chain_count, proc);
+#endif
 
     MPI_Recv(chains, chain_count * 20, MPI_CHAR, proc, 1338, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
@@ -72,9 +87,10 @@ int Master::run(int argc, char** argv)
     int dict_status = 0;
     int finished_count = 0;
 
-    while(finished_count < m_size - 1);
+    while(finished_count < m_size - 1)
     {
         MPI_Recv(&opcode, 1, MPI_CHAR, MPI_ANY_SOURCE, 1337, MPI_COMM_WORLD, &status);
+        printf("[master] received opcode %02x from %d\n", (int)opcode, status.MPI_SOURCE);
         switch(opcode)
         {
             case 0x00:

@@ -37,7 +37,7 @@ void Slave::recvParams()
     chaingen = new ChainGenerator(m_alphabet, m_min_len, m_max_len, m_chain_length);
     iterator = chaingen->createDictIterator();
 
-    printf("sup im %d and ill crunch: %d %d %d %d\n", m_rank, m_alphabet_length, m_min_len, m_max_len, m_chain_length);
+    printf("[%d] parameters received: %d %d %d %d\n", m_rank, m_alphabet_length, m_min_len, m_max_len, m_chain_length);
 }
 
 void Slave::getToWork()
@@ -55,6 +55,13 @@ void Slave::getToWork()
     int iter_status = 0;
     char* chainPtr = chains;
     int i;
+
+#ifdef __VERBOSE__
+    iterator->getPlain(chainPtr);
+    printf("[%d] Generating from %s\n", m_rank, chainPtr);
+#endif
+
+
     for(i = 0; i < chains_count; i++)
     {
         iterator->getPlain(chainPtr);
@@ -92,6 +99,7 @@ int Slave::run(int argc, char **argv)
 
     for(;;)
     {
+        printf("[%d] sending %02x opcode to master\n", m_rank, (int)iWantWorkOp);
         MPI_Send(&iWantWorkOp, 1, MPI_CHAR, 0, 1337, MPI_COMM_WORLD);
         MPI_Recv(&opbuffer, 1, MPI_CHAR, 0, 1338, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
         if(opbuffer == 0x00)
@@ -100,6 +108,9 @@ int Slave::run(int argc, char **argv)
         }
         else
         {
+#ifdef __VERBOSE__
+            printf("[%d] no more work, returning...\n", m_rank);
+#endif
             //no more work
             break;
         }
