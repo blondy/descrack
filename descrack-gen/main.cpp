@@ -51,6 +51,8 @@ int main(int argc, char *argv[])
 
     int ret = entity->run(argc, argv);
     delete entity;
-    return ret;
 
+    MPI_Finalize();
+
+    return ret;
 }
