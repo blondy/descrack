@@ -90,7 +90,6 @@ int Master::run(int argc, char** argv)
     while(finished_count < m_size - 1)
     {
         MPI_Recv(&opcode, 1, MPI_CHAR, MPI_ANY_SOURCE, 1337, MPI_COMM_WORLD, &status);
-        printf("[master] received opcode %02x from %d\n", (int)opcode, status.MPI_SOURCE);
         switch(opcode)
         {
             case 0x00:

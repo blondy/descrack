@@ -99,7 +99,6 @@ int Slave::run(int argc, char **argv)
 
     for(;;)
     {
-        printf("[%d] sending %02x opcode to master\n", m_rank, (int)iWantWorkOp);
         MPI_Send(&iWantWorkOp, 1, MPI_CHAR, 0, 1337, MPI_COMM_WORLD);
         MPI_Recv(&opbuffer, 1, MPI_CHAR, 0, 1338, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
         if(opbuffer == 0x00)

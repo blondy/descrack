@@ -15,7 +15,7 @@ public:
     char* getHash(const char* text);
 
     //Reduction function, reduces hash to new plaintext and salt
-    void reduce(const char* hash, int function, char* res_salt, char* res_text);
+    void reduce(const char* hash, int function, char* res_salt, char* res_text, bool last = false);
 
     //Generates rainbow table chain.
     void generateChain(const char* plain, char* result);

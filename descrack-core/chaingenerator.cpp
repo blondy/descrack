@@ -20,7 +20,7 @@ ChainGenerator::ChainGenerator(const char* alphabet, int min_len, int max_len, i
     strcpy(m_alphabet, alphabet);
 
     m_min_len = std::max(min_len, 2);
-    m_max_len = std::max(m_min_len, max_len);
+    m_max_len = std::min(std::max(m_min_len, max_len), 10);
 
     m_chain_length = chain_length;
 
@@ -38,7 +38,7 @@ char* ChainGenerator::getHash(const char* text)
     return NULL;
 }
 
-void ChainGenerator::reduce(const char* hash, int function, char* res_salt, char* res_text)
+void ChainGenerator::reduce(const char* hash, int function, char* res_salt, char* res_text, bool last)
 {
     res_salt[0] = salt_alphabet[(hash[0] ^ 0x13 ^ (unsigned char)function) % salt_a_len];
     res_salt[1] = salt_alphabet[(hash[1] ^ 0x37 ^ (unsigned char)function) % salt_a_len];
@@ -58,6 +58,14 @@ void ChainGenerator::reduce(const char* hash, int function, char* res_salt, char
     }
 
     res_text[i] = 0x00;
+
+    if(last)
+    {
+        //This will result in nice, null-paded, chains in final table file,
+        //which compresses nicely.
+        for(i = i + 1; i < 8; i++)
+            res_text[i] = 0x00;
+    }
 }
 
 void ChainGenerator::generateChain(const char* plain, char* result)
