@@ -84,10 +84,10 @@ char* DictIterator::advanceOne(int* status /*= NULL*/)
     return advance(1, status);
 }
 
-char* DictIterator::getPlain()
+void DictIterator::getPlain(char* plain)
 {
-    char* plain = new char[m_max_len];
-    for(int i = 0; i < m_max_len; i++)
+    int i;
+    for(i = 0; i < m_max_len; i++)
     {
         if(m_state[i] == 0)
         {
@@ -96,8 +96,8 @@ char* DictIterator::getPlain()
         }
         plain[i] = m_alphabet[m_state[i] - 1];
     }
-
-    return plain;
+    if(i < 10)
+        plain[i] = 0x00;
 }
 
 void DictIterator::reset()

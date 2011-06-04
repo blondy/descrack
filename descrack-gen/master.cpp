@@ -26,7 +26,7 @@ void Master::init()
 
     m_chain_length = 4;
 
-    chaingen = new ChainGenerator("ABCDEFGHIJKLMNOPQRSTUWXYZ", m_min_len, m_max_len, m_chain_length);
+    chaingen = new ChainGenerator(m_alphabet, m_min_len, m_max_len, m_chain_length);
     iterator = chaingen->createDictIterator();
 }
 

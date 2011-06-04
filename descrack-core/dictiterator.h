@@ -14,7 +14,7 @@ public:
     char* advance(int count, int* status = NULL);
     char* advanceOne(int* status = NULL);
 
-    char* getPlain();
+    void getPlain(char* plain);
 
     void reset();
 

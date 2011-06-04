@@ -3,6 +3,9 @@
 
 #include "entity.h"
 
+class ChainGenerator;
+class DictIterator;
+
 class Slave : public Entity
 {
 public:
@@ -12,7 +15,11 @@ public:
     int run(int argc, char **argv);
 
     void recvParams();
+    void getToWork();
 protected:
+    ChainGenerator* chaingen;
+    DictIterator* iterator;
+
     char* m_alphabet;
     int m_alphabet_length;
 
