@@ -42,8 +42,11 @@ void Slave::recvParams()
 
 void Slave::getToWork()
 {
+    static char fullChainsOp = 0x01;
+    static char someChainsOp = 0x02;
+
     char* state = new char[m_max_len];
-    MPI_Recv(state, m_max_len, MPI_CHAR, 0, 1338, MPI_COMM_WORLD, MPI_IGNORE_STATUS);
+    MPI_Recv(state, m_max_len, MPI_CHAR, 0, 1338, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
     iterator->initFromState(state);
 
     int chains_count = 100;
@@ -51,7 +54,8 @@ void Slave::getToWork()
 
     int iter_status = 0;
     char* chainPtr = chains;
-    for(int i = 0; i < chains_count; i++)
+    int i;
+    for(i = 0; i < chains_count; i++)
     {
         iterator->getPlain(chainPtr);
         chaingen->generateChain(chainPtr, chainPtr + 10);
@@ -64,6 +68,17 @@ void Slave::getToWork()
         iterator->advanceOne(&iter_status);
     }
 
+    if(i == chains_count)
+    {
+        MPI_Send(&fullChainsOp, 1, MPI_CHAR, 0, 1337, MPI_COMM_WORLD);
+    }
+    else
+    {
+        MPI_Send(&someChainsOp, 1, MPI_CHAR, 0, 1337, MPI_COMM_WORLD);
+        MPI_Send(&i, 1, MPI_INTEGER, 0, 1338, MPI_COMM_WORLD);
+    }
+
+    MPI_Send(chains, i * 20, MPI_CHAR, 0, 1338, MPI_COMM_WORLD);
 
     delete state;
 }
@@ -81,7 +96,7 @@ int Slave::run(int argc, char **argv)
         MPI_Recv(&opbuffer, 1, MPI_CHAR, 0, 1338, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
         if(opbuffer == 0x00)
         {
-
+            getToWork();
         }
         else
         {
