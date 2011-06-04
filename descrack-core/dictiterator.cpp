@@ -55,15 +55,15 @@ char* DictIterator::advance(int count, int* status /*= NULL*/)
 
     while(count > 0)
     {
-        rest = count % m_a_len;
-        count = count / m_a_len;
-
-        m_state[state_start] += rest;
-
         if(state_start < 2)
             a_len_for_letter = ChainGenerator::salt_a_len;
         else
             a_len_for_letter = m_a_len;
+
+        rest = count % a_len_for_letter;
+        count = count / a_len_for_letter;
+
+        m_state[state_start] += rest;
 
         if(m_state[state_start] >= a_len_for_letter)
         {
