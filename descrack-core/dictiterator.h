@@ -17,6 +17,8 @@ public:
     char* getPlain();
 
     void reset();
+
+    char* getState() { return m_state; }
 private:
     char* m_alphabet;
     int m_a_len;

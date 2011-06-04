@@ -4,6 +4,7 @@
 #include "entity.h"
 
 class ChainGenerator;
+class DictIterator;
 
 class Master : public Entity
 {
@@ -18,6 +19,7 @@ public:
 
 protected:
     ChainGenerator* chaingen;
+    DictIterator* iterator;
 
     char* m_alphabet;
     int m_alphabet_length;
@@ -25,6 +27,9 @@ protected:
     int m_min_len, m_max_len;
 
     int m_chain_length;
+
+    void sendWork(int proc, int* status);
+    void recvChains(int proc, bool not_full_pkg = false);
 };
 
 #endif // MASTER_H
