@@ -2,6 +2,7 @@
 #define MASTER_H
 
 #include "entity.h"
+#include <stdio.h>
 
 class ChainGenerator;
 class DictIterator;
@@ -23,8 +24,13 @@ protected:
 
     int m_advance_step;
 
+    FILE* m_table_file;
+    int m_chain_count;
+
     void sendWork(int proc, int* status);
     void recvChains(int proc, bool not_full_pkg = false);
+
+    void flushFile();
 };
 
 #endif // MASTER_H

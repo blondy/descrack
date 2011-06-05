@@ -9,6 +9,7 @@
 Master::Master(int size, int rank)
     : Entity(size, rank)
 {
+    m_chain_count = 0;
 }
 
 Master::~Master()
@@ -80,8 +81,21 @@ void Master::recvChains(int proc, bool not_full_pkg)
 #endif
 
     MPI_Recv(m_chain_buffer, chain_count * 20, MPI_CHAR, proc, 1338, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    m_chain_count += chain_count;
 
     //save chains here
+    fwrite(m_chain_buffer, chain_count, 20, m_table_file);
+    flushFile();
+}
+
+void Master::flushFile()
+{
+    fseek(m_table_file, 0, SEEK_SET);
+    fwrite(&m_chain_count, sizeof(m_chain_count), 1, m_table_file);
+    fseek(m_table_file, 0, SEEK_END);
+    fflush(m_table_file);
+
+    printf("[master] Flushing, now: %d chains\n", m_chain_count);
 }
 
 int Master::run(int argc, char** argv)
@@ -94,6 +108,9 @@ int Master::run(int argc, char** argv)
 
     int dict_status = 0;
     int finished_count = 0;
+
+    m_table_file = fopen(argv[1], "w+b");
+    fwrite(&m_chain_count, sizeof(m_chain_count), 1, m_table_file);
 
     while(finished_count < m_size - 1)
     {
@@ -120,5 +137,7 @@ int Master::run(int argc, char** argv)
                 break;
         }
     }
+
+    fclose(m_table_file);
     return 0;
 }
