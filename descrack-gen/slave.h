@@ -19,13 +19,6 @@ public:
 protected:
     ChainGenerator* chaingen;
     DictIterator* iterator;
-
-    char* m_alphabet;
-    int m_alphabet_length;
-
-    int m_min_len, m_max_len;
-
-    int m_chain_length;
 };
 
 #endif // SLAVE_H

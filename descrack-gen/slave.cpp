@@ -21,13 +21,14 @@ Slave::~Slave()
 
 void Slave::recvParams()
 {
-    int params[4];
-    MPI_Bcast(params, 4, MPI_INTEGER, 0, MPI_COMM_WORLD);
+    int params[5];
+    MPI_Bcast(params, 5, MPI_INTEGER, 0, MPI_COMM_WORLD);
 
     m_alphabet_length = params[0];
     m_min_len = params[1];
     m_max_len = params[2];
     m_chain_length = params[3];
+    m_chain_pkg_size = params[4];
 
     m_alphabet = new char[m_alphabet_length+1];
     m_alphabet[m_alphabet_length] = 0x00;
@@ -36,6 +37,8 @@ void Slave::recvParams()
 
     chaingen = new ChainGenerator(m_alphabet, m_min_len, m_max_len, m_chain_length);
     iterator = chaingen->createDictIterator();
+
+    m_chain_buffer = new char[m_chain_pkg_size * 20];
 
     printf("[%d] parameters received: %d %d %d %d\n", m_rank, m_alphabet_length, m_min_len, m_max_len, m_chain_length);
 }
@@ -49,11 +52,8 @@ void Slave::getToWork()
     MPI_Recv(state, m_max_len, MPI_CHAR, 0, 1338, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
     iterator->initFromState(state);
 
-    int chains_count = 100;
-    static char chains[2000];
-
     int iter_status = 0;
-    char* chainPtr = chains;
+    char* chainPtr = m_chain_buffer;
     int i;
 
 #ifdef __VERBOSE__
@@ -62,7 +62,7 @@ void Slave::getToWork()
 #endif
 
 
-    for(i = 0; i < chains_count; i++)
+    for(i = 0; i < m_chain_pkg_size; i++)
     {
         iterator->getPlain(chainPtr);
         chaingen->generateChain(chainPtr, chainPtr + 10);
@@ -75,7 +75,7 @@ void Slave::getToWork()
         iterator->advanceOne(&iter_status);
     }
 
-    if(i == chains_count)
+    if(i == m_chain_pkg_size)
     {
         MPI_Send(&fullChainsOp, 1, MPI_CHAR, 0, 1337, MPI_COMM_WORLD);
     }
@@ -85,7 +85,7 @@ void Slave::getToWork()
         MPI_Send(&i, 1, MPI_INTEGER, 0, 1338, MPI_COMM_WORLD);
     }
 
-    MPI_Send(chains, i * 20, MPI_CHAR, 0, 1338, MPI_COMM_WORLD);
+    MPI_Send(m_chain_buffer, i * 20, MPI_CHAR, 0, 1338, MPI_COMM_WORLD);
 
     delete state;
 }
