@@ -30,7 +30,9 @@ protected:
     void sendWork(int proc, int* status);
     void recvChains(int proc, bool not_full_pkg = false);
 
+    bool openFile(const char* filename);
     void flushFile();
+    void closeFile();
 };
 
 #endif // MASTER_H

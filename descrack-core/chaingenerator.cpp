@@ -82,7 +82,7 @@ void ChainGenerator::generateChain(const char* plain, char* result)
     for(int i = 0; i < m_chain_length; i++)
     {
         char* hash = crypt(text, salt);
-        reduce(hash, i, salt, text);
+        reduce(hash, i, salt, text, (i == m_chain_length-1));
     }
 
     memcpy(result, salt, 2);

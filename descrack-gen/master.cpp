@@ -88,6 +88,17 @@ void Master::recvChains(int proc, bool not_full_pkg)
     flushFile();
 }
 
+bool Master::openFile(const char* filename)
+{
+    m_table_file = fopen(filename, "w+b");
+    fwrite(&m_chain_count, sizeof(m_chain_count), 1, m_table_file);
+    fwrite(&m_alphabet_length, sizeof(m_alphabet_length), 1, m_table_file);
+    fwrite(&m_alphabet, sizeof(*m_alphabet), m_alphabet_length, m_table_file);
+    fwrite(&m_min_len, sizeof(m_min_len), 1, m_table_file);
+    fwrite(&m_max_len, sizeof(m_max_len), 1, m_table_file);
+    fwrite(&m_chain_length, sizeof(m_chain_length), 1, m_table_file);
+}
+
 void Master::flushFile()
 {
     fseek(m_table_file, 0, SEEK_SET);
@@ -98,9 +109,21 @@ void Master::flushFile()
     printf("[master] Flushing, now: %d chains\n", m_chain_count);
 }
 
+void Master::closeFile()
+{
+    fclose(m_table_file);
+}
+
 int Master::run(int argc, char** argv)
 {
     init();
+
+    if(!openFile(argv[1]))
+    {
+        printf("Failed to open file %s\n", argv[1]);
+        return -1;
+    }
+
     broadcastParams();
 
     char opcode;
@@ -108,9 +131,6 @@ int Master::run(int argc, char** argv)
 
     int dict_status = 0;
     int finished_count = 0;
-
-    m_table_file = fopen(argv[1], "w+b");
-    fwrite(&m_chain_count, sizeof(m_chain_count), 1, m_table_file);
 
     while(finished_count < m_size - 1)
     {
