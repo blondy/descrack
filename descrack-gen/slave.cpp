@@ -49,7 +49,7 @@ void Slave::getToWork()
     static char someChainsOp = 0x02;
 
     char* state = new char[m_max_len];
-    MPI_Recv(state, m_max_len, MPI_CHAR, 0, 1338, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    MPI_Recv(state, m_max_len, MPI_CHAR, 0, COMM_ID_DATA, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
     iterator->initFromState(state);
 
     int iter_status = 0;
@@ -77,15 +77,15 @@ void Slave::getToWork()
 
     if(i == m_chain_pkg_size)
     {
-        MPI_Send(&fullChainsOp, 1, MPI_CHAR, 0, 1337, MPI_COMM_WORLD);
+        MPI_Send(&fullChainsOp, 1, MPI_CHAR, 0, COMM_ID_OPCODE, MPI_COMM_WORLD);
     }
     else
     {
-        MPI_Send(&someChainsOp, 1, MPI_CHAR, 0, 1337, MPI_COMM_WORLD);
-        MPI_Send(&i, 1, MPI_INTEGER, 0, 1338, MPI_COMM_WORLD);
+        MPI_Send(&someChainsOp, 1, MPI_CHAR, 0, COMM_ID_OPCODE, MPI_COMM_WORLD);
+        MPI_Send(&i, 1, MPI_INTEGER, 0, COMM_ID_DATA, MPI_COMM_WORLD);
     }
 
-    MPI_Send(m_chain_buffer, i * 20, MPI_CHAR, 0, 1338, MPI_COMM_WORLD);
+    MPI_Send(m_chain_buffer, i * 20, MPI_CHAR, 0, COMM_ID_DATA, MPI_COMM_WORLD);
 
     delete state;
 }
@@ -99,8 +99,8 @@ int Slave::run(int argc, char **argv)
 
     for(;;)
     {
-        MPI_Send(&iWantWorkOp, 1, MPI_CHAR, 0, 1337, MPI_COMM_WORLD);
-        MPI_Recv(&opbuffer, 1, MPI_CHAR, 0, 1338, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        MPI_Send(&iWantWorkOp, 1, MPI_CHAR, 0, COMM_ID_OPCODE, MPI_COMM_WORLD);
+        MPI_Recv(&opbuffer, 1, MPI_CHAR, 0, COMM_ID_DATA, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
         if(opbuffer == 0x00)
         {
             getToWork();

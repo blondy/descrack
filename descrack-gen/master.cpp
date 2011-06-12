@@ -53,8 +53,8 @@ void Master::sendWork(int proc, int* status)
 #endif
 
     static char workOp = 0x00;
-    MPI_Send(&workOp, 1, MPI_CHAR, proc, 1338, MPI_COMM_WORLD);
-    MPI_Send(iterator->getState(), m_max_len, MPI_CHAR, proc, 1338, MPI_COMM_WORLD);
+    MPI_Send(&workOp, 1, MPI_CHAR, proc, COMM_ID_DATA, MPI_COMM_WORLD);
+    MPI_Send(iterator->getState(), m_max_len, MPI_CHAR, proc, COMM_ID_DATA, MPI_COMM_WORLD);
 
     iterator->advance(m_advance_step, status);
 
@@ -64,26 +64,30 @@ void Master::sendWork(int proc, int* status)
 #endif
 }
 
+
 void Master::recvChains(int proc, bool not_full_pkg)
 {
     int chain_count = m_chain_pkg_size;
+
+    //When not full pkg, recv chain count first.
     if(not_full_pkg)
     {
-        MPI_Recv(&chain_count, 1, MPI_INTEGER, proc, 1338, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        MPI_Recv(&chain_count, 1, MPI_INTEGER, proc, COMM_ID_DATA, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
         if(chain_count > m_chain_pkg_size)
         {
             //wtf I dont want your chains
             return;
         }
     }
+
 #ifdef __VERBOSE__
     printf("[master] receiving %d chains from %d\n", chain_count, proc);
 #endif
 
-    MPI_Recv(m_chain_buffer, chain_count * 20, MPI_CHAR, proc, 1338, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    MPI_Recv(m_chain_buffer, chain_count * 20, MPI_CHAR, proc, COMM_ID_DATA, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
     m_chain_count += chain_count;
 
-    //save chains here
+    //saving chains here
     fwrite(m_chain_buffer, chain_count, 20, m_table_file);
     flushFile();
 }
@@ -91,12 +95,19 @@ void Master::recvChains(int proc, bool not_full_pkg)
 bool Master::openFile(const char* filename)
 {
     m_table_file = fopen(filename, "w+b");
+    if(!m_table_file)
+        return false;
+
+    //Chain count part, this part is rewritten every flush,
+    //fseek set sizeof(int) would work here too
     fwrite(&m_chain_count, sizeof(m_chain_count), 1, m_table_file);
     fwrite(&m_alphabet_length, sizeof(m_alphabet_length), 1, m_table_file);
-    fwrite(&m_alphabet, sizeof(*m_alphabet), m_alphabet_length, m_table_file);
+    fwrite(m_alphabet, sizeof(*m_alphabet), m_alphabet_length, m_table_file);
     fwrite(&m_min_len, sizeof(m_min_len), 1, m_table_file);
     fwrite(&m_max_len, sizeof(m_max_len), 1, m_table_file);
     fwrite(&m_chain_length, sizeof(m_chain_length), 1, m_table_file);
+
+    return true;
 }
 
 void Master::flushFile()
@@ -106,7 +117,9 @@ void Master::flushFile()
     fseek(m_table_file, 0, SEEK_END);
     fflush(m_table_file);
 
+#ifdef __VERBOSE__
     printf("[master] Flushing, now: %d chains\n", m_chain_count);
+#endif
 }
 
 void Master::closeFile()
@@ -132,9 +145,17 @@ int Master::run(int argc, char** argv)
     int dict_status = 0;
     int finished_count = 0;
 
+    /*
+        Communication goes as follows:
+        - Slave sends opcode (char) to master, one of the following:
+            - 0x00 - Send me work!
+            - 0x01 - Receive my chains! (full package)
+            - 0x02 - Receive my chains! (not full pkg)
+        - Master reacts, either recving more data or just responding.
+     */
     while(finished_count < m_size - 1)
     {
-        MPI_Recv(&opcode, 1, MPI_CHAR, MPI_ANY_SOURCE, 1337, MPI_COMM_WORLD, &status);
+        MPI_Recv(&opcode, 1, MPI_CHAR, MPI_ANY_SOURCE, COMM_ID_OPCODE, MPI_COMM_WORLD, &status);
         switch(opcode)
         {
             case 0x00:
@@ -145,7 +166,7 @@ int Master::run(int argc, char** argv)
                 else
                 {
                     static char noMoreWorkOp = 0x01;
-                    MPI_Send(&noMoreWorkOp, 1, MPI_CHAR, status.MPI_SOURCE, 1338, MPI_COMM_WORLD);
+                    MPI_Send(&noMoreWorkOp, 1, MPI_CHAR, status.MPI_SOURCE, COMM_ID_DATA, MPI_COMM_WORLD);
                     finished_count++;
                 }
                 break;

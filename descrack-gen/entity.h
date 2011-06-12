@@ -6,6 +6,9 @@
 //Constants and defines go here
 #define __VERBOSE__
 
+#define COMM_ID_OPCODE  1337
+#define COMM_ID_DATA    1338
+
 class Entity
 {
 public:

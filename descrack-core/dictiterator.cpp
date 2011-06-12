@@ -118,8 +118,11 @@ void DictIterator::getPlain(char* plain)
         else
             plain[i] = m_alphabet[m_state[i] - 1];
     }
-    if(i < 10)
-        plain[i] = 0x00;
+
+    for(i; i < 10; i++)
+    {
+        plain[i] = 0x00; //nulpadding
+    }
 }
 
 void DictIterator::reset()
