@@ -44,6 +44,13 @@ int main(int argc, char *argv[])
     } else {
         printf("No plane text found for given hash :(\n");
     }
+
+    fclose(sourceFile);
+
+    delete planesChain[0];
+    delete planesChain[1];
+    delete planesChain;
+
     return 0;
 
 }
@@ -61,13 +68,17 @@ char* findPlainForHash(char* hash){
         while(checkedChainsCounter++ < chain_count){
             readChainFromFile();
             if(doesChainLeadToHash(reducedHash)){
+                delete res_salt;
+                delete res_text;
                 return planesChain[0];
             }
         }
         transformedHash = crypt(res_salt, res_text);
     }
 
-    fclose(sourceFile);
+    delete res_salt;
+    delete res_text;
+
     return NULL;
 }
 
@@ -100,6 +111,8 @@ bool doesPlainLeadToHash(char* plain, char* hash){
     char* res_text = new char[10];
     while(reductionCounter < chain_length){
         if(strcmp(transformedPlain, hash) == 0){
+            delete res_salt;
+            delete res_text;
             return true;
         } else {
             chainGen->reduce(transformedPlain,reductionCounter++, res_salt, res_text, true);
