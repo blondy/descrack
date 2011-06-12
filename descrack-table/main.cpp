@@ -56,8 +56,8 @@ int main(int argc, char *argv[])
 }
 
 char* findPlainForHash(char* hash){
-    char* res_salt = new char[3];
-    char* res_text = new char[10];
+    char res_salt[3];
+    char res_text[10];
     char* transformedHash = hash;
     int hashReductionCounter = 0;
     int checkedChainsCounter = 0;
@@ -68,16 +68,11 @@ char* findPlainForHash(char* hash){
         while(checkedChainsCounter++ < chain_count){
             readChainFromFile();
             if(doesChainLeadToHash(reducedHash)){
-                delete res_salt;
-                delete res_text;
                 return planesChain[0];
             }
         }
         transformedHash = crypt(res_salt, res_text);
     }
-
-    delete res_salt;
-    delete res_text;
 
     return NULL;
 }
@@ -98,7 +93,7 @@ void readChainFromFile(){
 
 bool doesChainLeadToHash(char* reducedHash){
     if(strcmp(reducedHash, planesChain[1]) == 0){
-        return doesPlainLeadToHash(planesChain[0], transformedHash);
+        return doesPlainLeadToHash(planesChain[0], reducedHash);
     } else {
         return false;
     }
@@ -107,19 +102,15 @@ bool doesChainLeadToHash(char* reducedHash){
 bool doesPlainLeadToHash(char* plain, char* hash){
     int reductionCounter = 0;
     char* transformedPlain = plain;
-    char* res_salt = new char[3];
-    char* res_text = new char[10];
+    char res_salt[3];
+    char res_text[10];
     while(reductionCounter < chain_length){
         if(strcmp(transformedPlain, hash) == 0){
-            delete res_salt;
-            delete res_text;
             return true;
         } else {
             chainGen->reduce(transformedPlain,reductionCounter++, res_salt, res_text, true);
             transformedPlain = crypt(res_salt, res_text);
         }
     }
-    delete res_salt;
-    delete res_text;
     return false;
 }
