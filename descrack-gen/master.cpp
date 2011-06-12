@@ -152,6 +152,8 @@ int Master::run(int argc, char** argv)
             - 0x01 - Receive my chains! (full package)
             - 0x02 - Receive my chains! (not full pkg)
         - Master reacts, either recving more data or just responding.
+            For 0x00, master can either reply '0x01' which is "No more work" or
+            0x00 followed with iterator state.
      */
     while(finished_count < m_size - 1)
     {

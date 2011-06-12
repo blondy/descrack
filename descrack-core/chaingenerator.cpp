@@ -23,19 +23,11 @@ ChainGenerator::ChainGenerator(const char* alphabet, int min_len, int max_len, i
     m_max_len = std::min(std::max(m_min_len, max_len), 10);
 
     m_chain_length = chain_length;
-
-    generateCaches();
 }
 
 ChainGenerator::~ChainGenerator()
 {
-
-}
-
-
-char* ChainGenerator::getHash(const char* text)
-{
-    return NULL;
+    delete m_alphabet;
 }
 
 void ChainGenerator::reduce(const char* hash, int function, char* res_salt, char* res_text, bool last)
@@ -87,19 +79,6 @@ void ChainGenerator::generateChain(const char* plain, char* result)
 
     memcpy(result, salt, 2);
     memcpy(result+2, text, 8);
-}
-
-int ChainGenerator::getLetterNum(unsigned char c)
-{
-    return m_char_map[(int)c];
-}
-
-void ChainGenerator::generateCaches()
-{
-    //Charmap
-    memset(m_char_map, 0x00, 255);
-    for(int i = 0; i < m_alphabet_length; i++)
-        m_char_map[(int)m_alphabet[i]] = i;
 }
 
 DictIterator* ChainGenerator::createDictIterator()
