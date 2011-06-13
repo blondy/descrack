@@ -23,9 +23,9 @@ void Master::init()
     m_alphabet_length = strlen(m_alphabet);
 
     m_min_len = 3;
-    m_max_len = 6;
+    m_max_len = 5;
 
-    m_chain_length = 4;
+    m_chain_length = 10;
 
     m_chain_pkg_size = 500;
     m_advance_step = m_chain_pkg_size * m_chain_length;

@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
             printf("Usage: descrack-table hash PASSWORD SALT\n");
             return -1;
         }
-        printf("Hash for %s with salt %s = %s\n", argv[2], argv[3], crypt(argv[2], argv[3]));
+        printf("%s", crypt(argv[2], argv[3]));
         return 0;
     }
     else
@@ -104,11 +104,11 @@ char* findPlainForHash(char* hash){
         for(int red = start_red; red < chain_length; red++)
         {
             chainGen->reduce(transformedHash, red, res_salt, res_text, false);
-            memcpy(reduced, res_salt, 2);
-            memcpy(reduced+2, res_text, 9);
-
             transformedHash = crypt(res_text, res_salt);
         }
+
+        memcpy(reduced, res_salt, 2);
+        memcpy(reduced+2, res_text, 9);
 
         while(checkedChainsCounter++ < chain_count){
             readChainFromFile();
@@ -159,7 +159,7 @@ char* doesPlainLeadToHash(char* plain, char* hash)
     memcpy(res_salt, plain, 2);
     strcpy(res_text, plain+2);
 
-    while(reductionCounter++ < chain_length)
+    while(reductionCounter < chain_length)
     {
         char* cryptR = crypt(res_text, res_salt);
         if(strcmp(cryptR, hash) == 0)
