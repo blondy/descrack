@@ -39,8 +39,6 @@ void Slave::recvParams()
     iterator = chaingen->createDictIterator();
 
     m_chain_buffer = new char[m_chain_pkg_size * 20];
-
-    printf("[%d] parameters received: %d %d %d %d\n", m_rank, m_alphabet_length, m_min_len, m_max_len, m_chain_length);
 }
 
 void Slave::getToWork()

@@ -12,13 +12,11 @@ CONFIG += staticlib
 
 LIBS += -lcrypt
 
-SOURCES += descrackcore.cpp \
-    rainbowtable.cpp \
+SOURCES += \
     chaingenerator.cpp \
     dictiterator.cpp
 
-HEADERS += descrackcore.h \
-    rainbowtable.h \
+HEADERS += \
     chaingenerator.h \
     dictiterator.h
 unix:!symbian {
