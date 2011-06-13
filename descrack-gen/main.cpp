@@ -1,4 +1,3 @@
-#include <descrackcore.h>
 #include <mpi/mpi.h>
 
 #include "slave.h"
