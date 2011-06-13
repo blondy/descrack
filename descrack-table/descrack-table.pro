@@ -7,6 +7,7 @@
 QT       -= core ui
 
 LIBS += ../descrack-core-build-desktop/libdescrack-core.a
+LIBS += -lcrypt
 
 INCLUDEPATH += ../descrack-core/
 
