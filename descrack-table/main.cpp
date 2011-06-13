@@ -14,11 +14,13 @@ int chain_length;
 char* alphabet;
 ChainGenerator* chainGen;
 
+int chain_file_pos;
+
 char* findPlainForHash(char* hash);
 void readParamsFromFile();
 void readChainFromFile();
-bool doesChainLeadToHash(char* reducedHash);
-bool doesPlainLeadToHash(char* plain, char* hash);
+char* doesChainLeadToHash(char* reduced, char* hash);
+char* doesPlainLeadToHash(char* plain, char* hash);
 int crackMain(int argc, char** argv);
 
 int main(int argc, char *argv[])
@@ -72,7 +74,7 @@ int crackMain(int argc, char** argv)
 
     char* plane = findPlainForHash(argv[2]);
     if(plane != NULL){
-        printf("%s\n", plane);
+        printf("Plain found for hash %s = %s\n", argv[2], plane);
     } else {
         printf("No plane text found for given hash :(\n");
     }
@@ -91,22 +93,32 @@ char* findPlainForHash(char* hash){
     char res_salt[3];
     char res_text[10];
     char reduced[11];
-    char* transformedHash = hash;
-    int hashReductionCounter = 0;
+    char* transformedHash;
+    int hashReductionCounter = chain_length - 1;
     int checkedChainsCounter = 0;
+    res_salt[2] = 0x00;
 
-    while(hashReductionCounter < chain_length){
-        chainGen->reduce(transformedHash, hashReductionCounter++, res_salt, res_text, true);
-        memcpy(reduced, res_salt, 2);
-        memcpy(reduced+2, res_text, 9);
+    for(int start_red = chain_length-1; start_red >= 0; start_red--)
+    {
+        transformedHash = hash;
+        for(int red = start_red; red < chain_length; red++)
+        {
+            chainGen->reduce(transformedHash, red, res_salt, res_text, false);
+            memcpy(reduced, res_salt, 2);
+            memcpy(reduced+2, res_text, 9);
+
+            transformedHash = crypt(res_text, res_salt);
+        }
 
         while(checkedChainsCounter++ < chain_count){
             readChainFromFile();
-            if(doesChainLeadToHash(reduced)){
-                return planesChain[0];
-            }
+            char* result = doesChainLeadToHash(reduced, hash);
+            if(result)
+                return result;
         }
-        transformedHash = crypt(res_salt, res_text);
+
+        checkedChainsCounter = 0;
+        fseek(sourceFile, chain_file_pos, SEEK_SET);
     }
 
     return NULL;
@@ -121,6 +133,8 @@ void readParamsFromFile(){
     fread(&min_length, sizeof(int), 1, sourceFile);
     fread(&max_length, sizeof(int), 1, sourceFile);
     fread(&chain_length, sizeof(int), 1, sourceFile);
+
+    chain_file_pos = ftell(sourceFile);
 }
 
 void readChainFromFile(){
@@ -128,26 +142,35 @@ void readChainFromFile(){
     fread(planesChain[1], 1, 10, sourceFile);
 }
 
-bool doesChainLeadToHash(char* reducedHash){
-    if(strcmp(reducedHash, planesChain[1]) == 0){
-        return doesPlainLeadToHash(planesChain[0], reducedHash);
+char* doesChainLeadToHash(char* reduced, char* hash){
+    if(strcmp(reduced, planesChain[1]) == 0){
+        return doesPlainLeadToHash(planesChain[0], hash);
     } else {
-        return false;
+        return NULL;
     }
 }
 
-bool doesPlainLeadToHash(char* plain, char* hash){
+char* doesPlainLeadToHash(char* plain, char* hash)
+{
     int reductionCounter = 0;
-    char* transformedPlain = plain;
     char res_salt[3];
     char res_text[10];
-    while(reductionCounter < chain_length){
-        if(strcmp(transformedPlain, hash) == 0){
-            return true;
-        } else {
-            chainGen->reduce(transformedPlain,reductionCounter++, res_salt, res_text, true);
-            transformedPlain = crypt(res_salt, res_text);
+    res_salt[2] = 0x00;
+    memcpy(res_salt, plain, 2);
+    strcpy(res_text, plain+2);
+
+    while(reductionCounter++ < chain_length)
+    {
+        char* cryptR = crypt(res_text, res_salt);
+        if(strcmp(cryptR, hash) == 0)
+        {
+            char* result = new char[strlen(res_text)];
+            strcpy(result, res_text);
+            return result;
         }
+
+        chainGen->reduce(cryptR, reductionCounter++, res_salt, res_text, false);
     }
-    return false;
+
+    return NULL;
 }
