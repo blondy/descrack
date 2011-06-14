@@ -17,17 +17,17 @@ Master::~Master()
     delete chaingen;
 }
 
-void Master::init()
+void Master::init(char** argv)
 {
-    m_alphabet = "ABCDEFGHIJKLMNOPQRSTUWXYZ";
+    m_alphabet = argv[3];//"ABCDEFGHIJKLMNOPQRSTUWXYZ";
     m_alphabet_length = strlen(m_alphabet);
 
-    m_min_len = 3;
-    m_max_len = 6;
+    m_min_len = atoi(argv[4]);//3;
+    m_max_len = atoi(argv[5]);//6;
 
-    m_chain_length = 4;
+    m_chain_length = atoi(argv[6]);//4;
 
-    m_chain_pkg_size = 500;
+    m_chain_pkg_size = atoi(argv[7]);//500;
     m_advance_step = m_chain_pkg_size * m_chain_length;
 
     chaingen = new ChainGenerator(m_alphabet, m_min_len, m_max_len, m_chain_length);
@@ -129,7 +129,7 @@ void Master::closeFile()
 
 int Master::run(int argc, char** argv)
 {
-    init();
+    init(argv);
 
     if(!openFile(argv[1]))
     {

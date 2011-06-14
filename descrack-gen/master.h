@@ -13,7 +13,7 @@ public:
     Master(int size, int rank);
     ~Master();
 
-    void init();
+    void init(char** argv);
     int run(int argc, char** argv);
 
     void broadcastParams();
