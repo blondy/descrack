@@ -20,9 +20,6 @@ DictIterator::DictIterator(const char* alphabet, int a_len, int min_len, int max
 
 void DictIterator::initFromPlain(const char* plain)
 {
-    //Warning: this is broken because it doesn't support salt
-    //fix if you want to use this :P
-
     if(strlen(plain) < m_min_len)
         m_min_len = strlen(plain);
     else if(strlen(plain) > m_max_len)
